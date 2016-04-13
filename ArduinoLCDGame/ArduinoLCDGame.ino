@@ -48,8 +48,11 @@
 #define HERO_POSITION_RUN_UPPER_1 11 // Hero is running on upper row (pose 1)
 #define HERO_POSITION_RUN_UPPER_2 12 //                              (pose 2)
 
-#define LEVEL_1 150;
-#define LEVEL_STEP 10;
+#define LEVEL_1 150             // Beginning milliseconds of delay.
+#define LEVEL_STEP 10           // How many milliseconds to decrease delay.
+#define LEVEL_SCORE_STEP 10     // Divisibility of score to decrease LEVEL_STEP.
+#define SCORE_INCREASE_STEP 10  // How much to increase the score(distance) by.
+
 LiquidCrystal lcd(11, 9, 6, 5, 4, 3);
 static char terrainUpper[TERRAIN_WIDTH + 1];
 static char terrainLower[TERRAIN_WIDTH + 1];
@@ -94,7 +97,7 @@ void advanceTerrain(char* terrain, byte newTerrain){
 }
 
 bool drawHero(byte position, char* terrainUpper, char* terrainLower, unsigned int score) {
-  if(last_score != score && score % 10 == 0) {
+  if(last_score != score && score % LEVEL_SCORE_STEP == 0) {
     level = level - LEVEL_STEP;
   }
   last_score = score;
@@ -253,7 +256,8 @@ void loop(){
     } else {
       ++heroPos;
     }
-    ++distance;
+    distance = distance + SCORE_INCREASE_STEP;
+    //++distance;
   }
   delay(level);
 }
