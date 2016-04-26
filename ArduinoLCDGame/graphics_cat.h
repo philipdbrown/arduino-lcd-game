@@ -1,4 +1,4 @@
-#include <arduino.h>
+#include <Arduino.h>
 
 static byte graphics[] = {
     // Run position 1
