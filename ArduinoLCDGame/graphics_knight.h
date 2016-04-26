@@ -1,3 +1,5 @@
+#include <arduino.h>
+
 static byte graphics[] = {
     // Run position 1
     B01100,
