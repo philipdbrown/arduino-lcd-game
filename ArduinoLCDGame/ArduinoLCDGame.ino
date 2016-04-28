@@ -10,7 +10,19 @@
 // Downloaded from: https://123d.circuits.io/circuits/1073419-arduino-lcd-game
 
 #include <LiquidCrystal.h>
+
+/**
+ * To edit graphics, change to a different graphic file.
+ */
 #include "default_graphics.h"
+
+/**
+ * Change the following to customize the game.
+ */
+#define LEVEL_START 150        // Beginning milliseconds of delay.
+#define LEVEL_STEP 1           // How many milliseconds to decrease delay.
+#define LEVEL_SCORE_STEP 50    // Divisibility of score to decrease LEVEL_STEP.
+#define SCORE_INCREASE_STEP 10 // How much to increase the score by.
 
 #define PIN_BUTTON 2
 #define PIN_READWRITE 10
@@ -48,17 +60,12 @@
 #define HERO_POSITION_RUN_UPPER_1 11 // Hero is running on upper row (pose 1)
 #define HERO_POSITION_RUN_UPPER_2 12 //                              (pose 2)
 
-#define LEVEL_START 150             // Beginning milliseconds of delay.
-#define LEVEL_STEP 1           // How many milliseconds to decrease delay.
-#define LEVEL_SCORE_STEP 50     // Divisibility of score to decrease LEVEL_STEP.
-#define SCORE_INCREASE_STEP 10  // How much to increase the score by.
-
 LiquidCrystal lcd(11, 9, 6, 5, 4, 3);
 static char terrainUpper[TERRAIN_WIDTH + 1];
 static char terrainLower[TERRAIN_WIDTH + 1];
 static bool buttonPushed = false;
 int level = LEVEL_START;
-unsigned int last_score = 0;
+static unsigned long last_score = 0;
 
 void initializeGraphics(){
   int i;
@@ -96,7 +103,7 @@ void advanceTerrain(char* terrain, byte newTerrain){
   }
 }
 
-bool drawHero(byte position, char* terrainUpper, char* terrainLower, unsigned int score) {
+bool drawHero(byte position, char* terrainUpper, char* terrainLower, unsigned long score) {
   if(last_score != score && score % LEVEL_SCORE_STEP == 0) {
     level = level - LEVEL_STEP;
     
@@ -163,7 +170,6 @@ bool drawHero(byte position, char* terrainUpper, char* terrainLower, unsigned in
   terrainUpper[TERRAIN_WIDTH] = '\0';
   terrainLower[TERRAIN_WIDTH] = '\0';
   char temp = terrainUpper[16-digits];
-  Serial.println(temp);
   terrainUpper[16-digits] = '\0';
   lcd.setCursor(0,0);
   lcd.print(terrainUpper);
@@ -172,7 +178,14 @@ bool drawHero(byte position, char* terrainUpper, char* terrainLower, unsigned in
   lcd.print(terrainLower);
   
   lcd.setCursor(16 - digits,0);
-  lcd.print(score);
+  if(score > 99999) {
+    lcd.setCursor(9, 0);
+    lcd.print("KillScr");
+    collide = true;
+  }
+  else {
+    lcd.print(score);
+  }
 
   terrainUpper[HERO_HORIZONTAL_POSITION] = upperSave;
   terrainLower[HERO_HORIZONTAL_POSITION] = lowerSave;
@@ -206,13 +219,13 @@ void loop(){
   static byte newTerrainDuration = 1;
   static bool playing = false;
   static bool blink = false;
-  static unsigned int score = 0;
+  static unsigned long score = 0;
   
   if (!playing) {
-    drawHero((blink) ? HERO_POSITION_OFF : heroPos, terrainUpper, terrainLower, score >> 3);
+    drawHero((blink) ? HERO_POSITION_OFF : heroPos, terrainUpper, terrainLower, score);
     if (blink) {
       lcd.setCursor(0,0);
-      lcd.print("Press Start");
+      lcd.print("Press Go");
       level = LEVEL_START;
     }
     delay(500);
@@ -247,7 +260,7 @@ void loop(){
     buttonPushed = false;
   }  
 
-  if (drawHero(heroPos, terrainUpper, terrainLower, score >> 3)) {
+  if (drawHero(heroPos, terrainUpper, terrainLower, score)) {
     playing = false; // The hero collided with something. Too bad.
   } else {
     if (heroPos == HERO_POSITION_RUN_LOWER_2 || heroPos == HERO_POSITION_JUMP_8) {
