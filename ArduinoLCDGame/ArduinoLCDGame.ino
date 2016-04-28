@@ -48,17 +48,17 @@
 #define HERO_POSITION_RUN_UPPER_1 11 // Hero is running on upper row (pose 1)
 #define HERO_POSITION_RUN_UPPER_2 12 //                              (pose 2)
 
-#define LEVEL_1 150             // Beginning milliseconds of delay.
-#define LEVEL_STEP 2           // How many milliseconds to decrease delay.
+#define LEVEL_START 150             // Beginning milliseconds of delay.
+#define LEVEL_STEP 1           // How many milliseconds to decrease delay.
 #define LEVEL_SCORE_STEP 50     // Divisibility of score to decrease LEVEL_STEP.
-#define SCORE_INCREASE_STEP 10  // How much to increase the score(distance) by.
+#define SCORE_INCREASE_STEP 10  // How much to increase the score by.
 
 LiquidCrystal lcd(11, 9, 6, 5, 4, 3);
 static char terrainUpper[TERRAIN_WIDTH + 1];
 static char terrainLower[TERRAIN_WIDTH + 1];
 static bool buttonPushed = false;
-int level = LEVEL_1;
-int last_score = 0;
+int level = LEVEL_START;
+unsigned int last_score = 0;
 
 void initializeGraphics(){
   int i;
@@ -99,9 +99,13 @@ void advanceTerrain(char* terrain, byte newTerrain){
 bool drawHero(byte position, char* terrainUpper, char* terrainLower, unsigned int score) {
   if(last_score != score && score % LEVEL_SCORE_STEP == 0) {
     level = level - LEVEL_STEP;
+    
+    //  If the level becomes < 1, reset to LEVEL_START to prevent failure.
+    if(level < 1) {
+      level = LEVEL_START;
+    }
   }
   last_score = score;
-  //Serial.println(level);
   bool collide = false;
   char upperSave = terrainUpper[HERO_HORIZONTAL_POSITION];
   char lowerSave = terrainLower[HERO_HORIZONTAL_POSITION];
@@ -159,6 +163,7 @@ bool drawHero(byte position, char* terrainUpper, char* terrainLower, unsigned in
   terrainUpper[TERRAIN_WIDTH] = '\0';
   terrainLower[TERRAIN_WIDTH] = '\0';
   char temp = terrainUpper[16-digits];
+  Serial.println(temp);
   terrainUpper[16-digits] = '\0';
   lcd.setCursor(0,0);
   lcd.print(terrainUpper);
@@ -201,23 +206,23 @@ void loop(){
   static byte newTerrainDuration = 1;
   static bool playing = false;
   static bool blink = false;
-  static unsigned int distance = 0;
+  static unsigned int score = 0;
   
   if (!playing) {
-    drawHero((blink) ? HERO_POSITION_OFF : heroPos, terrainUpper, terrainLower, distance >> 3);
+    drawHero((blink) ? HERO_POSITION_OFF : heroPos, terrainUpper, terrainLower, score >> 3);
     if (blink) {
       lcd.setCursor(0,0);
       lcd.print("Press Start");
-      level = LEVEL_1;
+      level = LEVEL_START;
     }
-    delay(250);
+    delay(500);
     blink = !blink;
     if (buttonPushed) {
       initializeGraphics();
       heroPos = HERO_POSITION_RUN_LOWER_1;
       playing = true;
       buttonPushed = false;
-      distance = 0;
+      score = 0;
     }
     return;
   }
@@ -242,7 +247,7 @@ void loop(){
     buttonPushed = false;
   }  
 
-  if (drawHero(heroPos, terrainUpper, terrainLower, distance >> 3)) {
+  if (drawHero(heroPos, terrainUpper, terrainLower, score >> 3)) {
     playing = false; // The hero collided with something. Too bad.
   } else {
     if (heroPos == HERO_POSITION_RUN_LOWER_2 || heroPos == HERO_POSITION_JUMP_8) {
@@ -256,8 +261,7 @@ void loop(){
     } else {
       ++heroPos;
     }
-    distance = distance + SCORE_INCREASE_STEP;
-    //++distance;
+    score = score + SCORE_INCREASE_STEP;
   }
   delay(level);
 }
