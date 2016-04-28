@@ -49,7 +49,7 @@ static byte graphics[] = {
     // Ground right
     B00000,
     B00000,
-    B00100
+    B00100,
     B01010,
     B10101,
     B00100,
