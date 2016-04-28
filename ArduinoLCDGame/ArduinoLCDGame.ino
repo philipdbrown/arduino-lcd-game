@@ -49,8 +49,8 @@
 #define HERO_POSITION_RUN_UPPER_2 12 //                              (pose 2)
 
 #define LEVEL_1 150             // Beginning milliseconds of delay.
-#define LEVEL_STEP 10           // How many milliseconds to decrease delay.
-#define LEVEL_SCORE_STEP 10     // Divisibility of score to decrease LEVEL_STEP.
+#define LEVEL_STEP 2           // How many milliseconds to decrease delay.
+#define LEVEL_SCORE_STEP 50     // Divisibility of score to decrease LEVEL_STEP.
 #define SCORE_INCREASE_STEP 10  // How much to increase the score(distance) by.
 
 LiquidCrystal lcd(11, 9, 6, 5, 4, 3);
