@@ -14,15 +14,15 @@
 /**
  * To edit graphics, change to a different graphic file.
  */
-#include "default_graphics.h"
+#include "graphics_qbert.h"
 
 /**
  * Change the following to customize the game.
  */
-#define LEVEL_START 150        // Beginning milliseconds of delay.
-#define LEVEL_STEP 1           // How many milliseconds to decrease delay.
-#define LEVEL_SCORE_STEP 50    // Divisibility of score to decrease LEVEL_STEP.
-#define SCORE_INCREASE_STEP 10 // How much to increase the score by.
+#define LEVEL_START  100 // Beginning milliseconds of delay.
+#define LEVEL_STEP 10           // How many milliseconds to decrease delay.
+#define LEVEL_SCORE_STEP 100    // Divisibility of score to decrease LEVEL_STEP.
+#define SCORE_INCREASE_STEP 100 // How much to increase the score by.
 
 #define PIN_BUTTON 2
 #define PIN_READWRITE 10
